@@ -74,11 +74,11 @@
 
 > IO Bounded (파일 Read / Write )
 
-![io_bound](./public/process_io_bounded.png)
+![io_bound](./public/process_io_bound.png)
 
 > Cpu Bounded (수치계산)
 
-![cpi_cound](./public/process_cpu_bounded.png)
+![cpi_cound](./public/process_cpu_bound.png)
 
 - [장점]
 
