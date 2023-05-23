@@ -1,10 +1,11 @@
 import logging
+import multiprocessing
 import threading
 import time
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format="%(threadName)s >> %(message)s"
+    format="%(processName)s >> %(message)s"
 )
 
 
@@ -31,11 +32,11 @@ if __name__ == "__main__":
     """
 
     d = {"x": 0}
-    lock = threading.Lock()
+    lock = multiprocessing.Lock()
 
     threads = []
     for worker in (worker_thread_1, worker_thread_2):
-        t = threading.Thread(target=worker, args=(d, lock,))
+        t = multiprocessing.Process(target=worker, args=(d, lock,))
         t.start()
         t.join()
         threads.append(t)
