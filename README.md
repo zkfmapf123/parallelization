@@ -46,7 +46,49 @@
 - process-manager.py
 - concurrent.py
 
-## Multi Threading Benchmark
+## Async-Sync
+
+- coroutin.py
+
+### Multi Thread
+
+> IO Bounded (파일 Read / Write )
+
+![io_bound](./public/io_bounded.png)
+
+> Cpu Bounded (수치계산)
+
+![cpi_cound](./public/cpu_bounded.png)
+
+- [장점]
+
+  - I/O Bounded 처리 효과적
+  - Multi process -> Multi thread 수를 증가시키기에 확장성이 좋음
+
+- [단점]
+
+  - GIL 대기가 존재 (for, while)
+  - CPU Bounded 부적합
+
+### Multi Process
+
+> IO Bounded (파일 Read / Write )
+
+![io_bound](./public/process_io_bounded.png)
+
+> Cpu Bounded (수치계산)
+
+![cpi_cound](./public/process_cpu_bounded.png)
+
+- [장점]
+
+  - GIL의 영향을 받지 않음
+
+- [단점]
+  - CPU의 코어수를 초과하는 병렬화는 불가능 (확장성 불가)
+  - 프로세스간의 통신이 필요함
+
+## Multi Threading & Multi Process Benchmark
 
 ```python
 
@@ -55,7 +97,6 @@ import time
 
 import requests
 from bs4 import BeautifulSoup
-
 
 def main(url):
     print(f"Scraping {url}...")
@@ -97,4 +138,80 @@ if __name__ == "__main__":
     // concurrent.futures
     >> time : 0.621763...
   """
+```
+
+```python
+import concurrent.futures
+import os
+import subprocess
+import time
+
+COUNT = 10000000
+LARGE_TEXT = "leedonggyu " * COUNT
+
+
+def cpu_bounded():
+    i = 0
+    while i < COUNT:
+        i = i + 1 - 2 + 3 - 4 + 5
+
+    return "done"
+
+
+def io_bounded(file_name: str):
+    with open(file_name, "w+") as fs:
+        fs.write(LARGE_TEXT)
+        fs.seek(0)
+        # fs.read()
+
+    subprocess.run(["rm", "-rf", file_name], check=False)
+    return "done"
+
+
+def main():
+    """
+        io bounded 같은 경우 multi-threading이 효과적
+        cpu bounded 같은 경우 multi-processing이 효과적
+    """
+
+    # io bounded (not multi-threading)
+    start = time.time()
+    io_bounded("test_1.txt")
+    io_bounded("test_2.txt")
+    print("io bounded time >> ", time.time() - start)
+
+    start = time.time()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as exec:
+        f1 = exec.submit(io_bounded, "test_1.txt")
+        f2 = exec.submit(io_bounded, "test_2.txt")
+
+        f1.result()
+        f2.result()
+    print("io bounded use multi-threading >> ", time.time() - start)
+
+    # cpu bounded
+    start = time.time()
+    cpu_bounded()
+    cpu_bounded()
+    print("cpu bounded time >> ", time.time() - start)
+
+    start = time.time()
+    with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as exec:
+        f1 = exec.submit(cpu_bounded)
+        f2 = exec.submit(cpu_bounded)
+
+        f1.result()
+        f2.result()
+    print("cpu bounded use multi-process >> ", time.time() - start)
+
+
+if __name__ == "__main__":
+    main()
+
+"""
+io bounded time >>  0.10172605514526367
+io bounded use multi-threading >>  0.10951805114746094
+cpu bounded time >>  0.5273258686065674
+cpu bounded use multi-process >>  0.34713220596313477
+"""
 ```
