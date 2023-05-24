@@ -5,11 +5,26 @@ def hello_friends():
     yield "hello leedonggyu"
     yield "hello limjeahyock"
     yield "hello kimboyun"
+    return "Done"
 
 
 def hello_friends_use_coroutin():
+    """
+        코루틴 형태
+    """
     while True:
         r = yield "hello leedonggyu"
+        yield r
+
+
+def hello_friends_use_coroutin_from():
+    """
+        코루틴 형태: 
+            from 절을 사용해서 다른 Generator를 사용
+    """
+
+    while True:
+        r = yield from hello_friends()
         yield r
 
 
@@ -31,9 +46,18 @@ if __name__ == "__main__":
     # print(next(friend))
     # print(next(friend))
 
-    friend = hello_friends_use_coroutin()
+    # friend = hello_friends_use_coroutin()
+    # print(next(friend))
+    # print(friend.send("limjeahock"))
+    # print(next(friend))
+    # print(friend.send("kimboyoun"))
+
+    friend = hello_friends_use_coroutin_from()
     print(next(friend))
-    print(friend.send("limjeahock"))
     print(next(friend))
-    print(friend.send("kimboyoun"))
     print(next(friend))
+    print(next(friend))  # None -> Done
+    print(next(friend))  # 다시 반복
+    print(next(friend))
+    print(next(friend))
+    print(next(friend))  # None -> Done
